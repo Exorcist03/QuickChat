@@ -18,12 +18,14 @@ export const ChatProvider = ({children}) => {
     // func to get all the suers for sidebar
     const getUsers = async () => {
         try {
-            const {data} = axios.get("/api/messages/users");
+            const {data} = await axios.get("/api/messages/users");
+            
             if(data.success) {
                 setUsers(data.users);
                 setUnseenMessages(data.unseenMessages);
             }
         } catch (error) {
+            console.log("get users in chatcontext error")
             toast.error(error.message);
         }
     }
@@ -36,6 +38,7 @@ export const ChatProvider = ({children}) => {
                 setMessages(data.messages);
             }
         } catch (error) {
+            console.log("get msg in chatcontext error");
             toast.error(error.message);
         }
     }
@@ -45,11 +48,13 @@ export const ChatProvider = ({children}) => {
         try {
             const {data} = await axios.post(`/api/messages/send/${selectedUsers._id}`, messageData);
             if(data.success) {
-                setMessages((prevMessages) => {[...prevMessages], data.newMessage});
+                setMessages((prevMessages) => [...prevMessages], data.newMessage);
             } else {
+                console.log("send msg in chatcontext error");
                 toast.error(error.message);
             }
         } catch (error) {
+            console.log("send msg in chatcontext error");
             toast.error(error.message);
         }
     }
@@ -61,11 +66,11 @@ export const ChatProvider = ({children}) => {
         socket.on("newMessage", async (newMessage) => {
             if(selectedUsers && newMessage.senderId === selectedUsers._id) {
                 newMessage.seen = true;
-                setMessages((prevMessages) => {[...prevMessages, newMessage]});
+                setMessages((prevMessages) => [...prevMessages, newMessage]);
                 await axios.put(`/api/messages/mark/${newMessage._id}`);
             } else {
                 setUnseenMessages((prevUnseenMessages) =>({
-                    ...prevUnseenMessages, [newMessage.senderId] : prevUnseenMessages[newMessage.senderId] ? prevUnseenMessages[newMessage.senderId] + 1;
+                    ...prevUnseenMessages, [newMessage.senderId] : prevUnseenMessages[newMessage.senderId] ? prevUnseenMessages[newMessage.senderId] + 1 : 1
                 }))
             }
         })
@@ -84,7 +89,7 @@ export const ChatProvider = ({children}) => {
     }, [socket, selectedUsers])
 
     const value = {
-        messages, users, selectedUsers, getUsers, setMessages, sendMessage, setSelectedUsers, unseenMessages, setUnseenMessages
+        messages, users, selectedUsers, getUsers, setMessages, sendMessage, setSelectedUsers, unseenMessages, setUnseenMessages, getMessages
     }
     return (
         <ChatContext.Provider value = {value}>

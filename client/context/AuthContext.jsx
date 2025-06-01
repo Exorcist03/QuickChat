@@ -11,7 +11,7 @@ axios.defaults.baseURL = backendUrl;
 // here releted to authentication
 export const AuthContext = createContext();
 
-export const AuthProvider = ({children}) => {
+export function AuthProvider  ({children})  {
 
     const [token, setToken] = useState(localStorage.getItem("token"));
     const [authUser, setAuthUser] = useState(null);
@@ -28,6 +28,7 @@ export const AuthProvider = ({children}) => {
                 connectSocket(data.user);
             }
         } catch (error) {
+            console.log("error in checkauth in authcontext.jsx")
             toast.error(error.message);
         }
     }
@@ -61,8 +62,11 @@ export const AuthProvider = ({children}) => {
         console.log("login function triggered");
         try {
             const {data} = await axios.post(`/api/auth/${state}`, credentials);
+            console.log(" start is ", state);
             console.log(" data is  ", data);
             if(data.success) {
+                console.log("inside login in auth provider");
+                console.log(data)
                 setAuthUser(data.useData);
                 connectSocket(data.userData);
                 axios.defaults.headers.common["token"] = data.token;
@@ -73,6 +77,7 @@ export const AuthProvider = ({children}) => {
                 toast.error(data.message);
             }
         } catch (error) {
+            console.log("error in login func in authcontext.jsx")
             toast.error(error.message);
         }
     }
@@ -98,6 +103,7 @@ export const AuthProvider = ({children}) => {
                 toast.success("Profile updated succesfully!!");
             }
         } catch (error) {
+            console.log("error in updateprofile in authcontext.jsx")
             toast.error(error.message);
         }
     }

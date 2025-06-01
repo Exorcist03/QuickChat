@@ -12,21 +12,22 @@ export const getUserForSideBar = async (req, res) => {
         // count the no of unseen passwords here for this userId for other users
         let unseenMessages = {}; // an object
         const promises = filteredUsers.map( async (user) => {
-            const mess = await Message.find({senderId: user._id, receiverId: user._id, seen: false});
+            const mess = await Message.find({senderId: user._id, receiverId: userId, seen: false});
             if(mess.length > 0) {
                 unseenMessages[user._id] = mess.length;
             }
         });
         // pause here until every Message.find() has resolved
         await Promise.all(promises);
-        req.json({
+        res.json({
             success: true,
             users: filteredUsers,
             unseenMessages
         })
     } catch (error) {
+        console.log("get user for sidebar error in msgcontrolleer.js");
         console.log(error.message);
-        req.json({
+        res.json({
             success: false,
             message: error.message
         })
@@ -52,8 +53,9 @@ export const getMessages = async (req, res) => {
             messages
         })
     } catch (error) {
+        console.log("error in getmsg controllers.js ")
         console.log(error.message);
-        req.json({
+        res.json({
             success: false,
             message: error.message
         })
@@ -67,8 +69,9 @@ export const markMessageSeen = async (req, res) => {
         await Message.findByIdAndUpdate(id, {seen: true});
         res.json({success: true});
     } catch (error) {
+        console.log("error in markmsgseen in msgcontrollers.js");
         console.log(error.message);
-        req.json({
+        res.json({
             success: false,
             message: error.message
         })
@@ -105,8 +108,9 @@ export const sendMessage = async (req, res) => {
         })
 
     } catch (error) {
+        console.log("error in sendmessage in msgcontroller.js");
         console.log(error.message);
-        req.json({
+        res.json({
             success: false,
             message: error.message
         })
